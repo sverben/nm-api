@@ -63,7 +63,7 @@ def get_user(token: HTTPAuthorizationCredentials = Depends(oauth2_scheme)):
     return User(**payload)
 
 
-@app.post('/authenticate')
+@app.post('/api/authenticate')
 def authenticate(details: Signin):
     response = get(f"https://api.nm-games.eu/verify/{details.name}/{details.token}").json()
 
@@ -75,7 +75,7 @@ def authenticate(details: Signin):
     return {"token": jwt.encode(user.dict(), secret, algorithm="HS256")}
 
 
-@app.get('/profile/{user_id}')
+@app.get('/api/profile/{user_id}')
 def get_profile(user_id: str):
     gamer = get(f"https://api.nm-games.eu/player/{user_id}").json()
     final_result = {
@@ -106,7 +106,7 @@ def get_profile(user_id: str):
     return final_result
 
 
-@app.post('/react')
+@app.post('/api/react')
 def react(reaction: Reaction, user: User = Depends(get_user)):
     if not is_emoji(reaction.emoji):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"details": "invalid_emoji"})
@@ -143,7 +143,7 @@ def react(reaction: Reaction, user: User = Depends(get_user)):
     return story
 
 
-@app.post('/about')
+@app.post('/api/about')
 def set_about_me(about: AboutMe, user: User = Depends(get_user)):
     result = about_me.find_one({
         "player": user.sub
